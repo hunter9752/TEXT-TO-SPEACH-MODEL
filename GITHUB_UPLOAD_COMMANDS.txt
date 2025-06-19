@@ -1,0 +1,21 @@
+# GitHub Upload Commands
+# Replace YOUR_USERNAME with your actual GitHub username
+
+# 1. After creating the repository on GitHub, run these commands:
+
+git remote add origin https://github.com/YOUR_USERNAME/speech-to-text-model.git
+git push -u origin main
+
+# 2. If you get authentication errors, you might need to:
+#    - Use a Personal Access Token instead of password
+#    - Or use GitHub CLI: gh auth login
+
+# 3. Alternative using GitHub CLI (if installed):
+gh repo create speech-to-text-model --public --source=. --remote=origin --push
+
+# 4. To verify upload:
+git remote -v
+git status
+
+# Your repository will be available at:
+# https://github.com/YOUR_USERNAME/speech-to-text-model
