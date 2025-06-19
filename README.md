@@ -1,4 +1,4 @@
-# 🎤 Speech-to-Text AI Analysis System
+# 🎤 TEXT-TO-SPEECH AI Analysis System
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -21,8 +21,8 @@ A comprehensive, production-ready system that converts speech to text and provid
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/speech-to-text-model.git
-cd speech-to-text-model
+git clone https://github.com/hunter9752/TEXT-TO-SPEACH-MODEL.git
+cd TEXT-TO-SPEACH-MODEL
 ```
 
 ### 2. Install Dependencies
@@ -182,9 +182,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/speech-to-text-model/issues)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/hunter9752/TEXT-TO-SPEACH-MODEL/issues)
 - 📖 **Documentation**: See project files and comments
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/YOUR_USERNAME/speech-to-text-model/discussions)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/hunter9752/TEXT-TO-SPEACH-MODEL/discussions)
 
 ---
 
