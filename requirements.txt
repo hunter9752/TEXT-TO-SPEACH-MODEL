@@ -1,0 +1,22 @@
+# Core dependencies for speech-to-text AI system
+speechrecognition==3.10.0
+openai-whisper==20231117
+pyaudio==0.2.11
+openai==1.3.0
+python-dotenv==1.0.0
+flask==3.0.0
+flask-cors==4.0.0
+numpy==1.24.3
+scipy==1.11.4
+pydub==0.25.1
+requests==2.31.0
+
+# Optional dependencies for enhanced functionality
+torch==2.1.0
+torchaudio==2.1.0
+transformers==4.35.0
+
+# Development dependencies
+pytest==7.4.3
+black==23.11.0
+flake8==6.1.0

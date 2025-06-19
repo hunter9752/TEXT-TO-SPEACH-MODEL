@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech-to-Text AI Analysis System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+        }
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        .ai-message {
+            background-color: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+        .system-message {
+            background-color: #fff3e0;
+            border-left: 4px solid #ff9800;
+            font-style: italic;
+        }
+        .recording-indicator {
+            display: none;
+            color: #dc3545;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .file-drop-zone {
+            border: 2px dashed #dee2e6;
+            border-radius: 0.375rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .file-drop-zone:hover {
+            border-color: #0d6efd;
+            background-color: #f8f9fa;
+        }
+        .file-drop-zone.dragover {
+            border-color: #0d6efd;
+            background-color: #e7f1ff;
+        }
+        .analysis-panel {
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .loading-spinner {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">
+                    <i class="fas fa-microphone text-primary"></i>
+                    Speech-to-Text AI Analysis System
+                </h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Main Interface -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-comments"></i>
+                            Conversation
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Chat Container -->
+                        <div id="chatContainer" class="chat-container">
+                            <div class="message system-message">
+                                <i class="fas fa-info-circle"></i>
+                                Welcome! Upload an audio file, record your voice, or type text to get started.
+                            </div>
+                        </div>
+
+                        <!-- Input Methods -->
+                        <div class="mt-3">
+                            <!-- Audio File Upload -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-file-audio"></i>
+                                    Upload Audio File
+                                </label>
+                                <div class="file-drop-zone" id="fileDropZone">
+                                    <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                    <p class="mb-2">Drag and drop an audio file here, or click to select</p>
+                                    <small class="text-muted">Supported formats: WAV, MP3, M4A, FLAC</small>
+                                    <input type="file" id="audioFileInput" accept="audio/*" style="display: none;">
+                                </div>
+                            </div>
+
+                            <!-- Text Input (for testing) -->
+                            <div class="mb-3">
+                                <label for="textInput" class="form-label">
+                                    <i class="fas fa-keyboard"></i>
+                                    Or Type Text Directly
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="textInput" 
+                                           placeholder="Type your message here...">
+                                    <button class="btn btn-primary" type="button" id="sendTextBtn">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Send
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Analysis Type Selection -->
+                            <div class="mb-3">
+                                <label for="analysisType" class="form-label">
+                                    <i class="fas fa-cog"></i>
+                                    Analysis Type
+                                </label>
+                                <select class="form-select" id="analysisType">
+                                    <option value="general">General Analysis</option>
+                                    <option value="sentiment">Sentiment Analysis</option>
+                                    <option value="intent">Intent Analysis</option>
+                                    <option value="summary">Summary</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Loading Indicator -->
+                        <div class="loading-spinner text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Processing...</span>
+                            </div>
+                            <p class="mt-2">Processing your input...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- System Status -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-heartbeat"></i>
+                            System Status
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="systemStatus">
+                            <div class="text-center">
+                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                                <small class="ms-2">Checking system status...</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Summary -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-chart-line"></i>
+                            Session Summary
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="sessionSummary">
+                            <p class="text-muted">No interactions yet</p>
+                        </div>
+                        <button class="btn btn-outline-danger btn-sm" id="clearSessionBtn">
+                            <i class="fas fa-trash"></i>
+                            Clear Session
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-sliders-h"></i>
+                            Settings
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="outputStyle" class="form-label">Output Style</label>
+                            <select class="form-select form-select-sm" id="outputStyle">
+                                <option value="conversational">Conversational</option>
+                                <option value="detailed">Detailed</option>
+                                <option value="minimal">Minimal</option>
+                                <option value="json">JSON</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm" id="saveSettingsBtn">
+                            <i class="fas fa-save"></i>
+                            Save Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        class SpeechToTextApp {
+            constructor() {
+                this.initializeElements();
+                this.attachEventListeners();
+                this.checkSystemStatus();
+                this.loadSettings();
+            }
+
+            initializeElements() {
+                this.chatContainer = document.getElementById('chatContainer');
+                this.fileDropZone = document.getElementById('fileDropZone');
+                this.audioFileInput = document.getElementById('audioFileInput');
+                this.textInput = document.getElementById('textInput');
+                this.sendTextBtn = document.getElementById('sendTextBtn');
+                this.analysisType = document.getElementById('analysisType');
+                this.loadingSpinner = document.querySelector('.loading-spinner');
+                this.systemStatus = document.getElementById('systemStatus');
+                this.sessionSummary = document.getElementById('sessionSummary');
+                this.clearSessionBtn = document.getElementById('clearSessionBtn');
+                this.outputStyle = document.getElementById('outputStyle');
+                this.saveSettingsBtn = document.getElementById('saveSettingsBtn');
+            }
+
+            attachEventListeners() {
+                // File upload
+                this.fileDropZone.addEventListener('click', () => this.audioFileInput.click());
+                this.fileDropZone.addEventListener('dragover', this.handleDragOver.bind(this));
+                this.fileDropZone.addEventListener('drop', this.handleFileDrop.bind(this));
+                this.audioFileInput.addEventListener('change', this.handleFileSelect.bind(this));
+
+                // Text input
+                this.sendTextBtn.addEventListener('click', this.sendText.bind(this));
+                this.textInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendText();
+                });
+
+                // Session management
+                this.clearSessionBtn.addEventListener('click', this.clearSession.bind(this));
+                this.saveSettingsBtn.addEventListener('click', this.saveSettings.bind(this));
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+                this.fileDropZone.classList.add('dragover');
+            }
+
+            handleFileDrop(e) {
+                e.preventDefault();
+                this.fileDropZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    this.processAudioFile(files[0]);
+                }
+            }
+
+            handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    this.processAudioFile(file);
+                }
+            }
+
+            async processAudioFile(file) {
+                this.showLoading(true);
+                this.addMessage('user', `Uploaded audio file: ${file.name}`);
+
+                const formData = new FormData();
+                formData.append('audio', file);
+
+                try {
+                    const response = await fetch('/api/process-audio', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.addMessage('user', `"${result.transcribed_text}"`);
+                        this.addMessage('ai', result.ai_response);
+                        this.updateSessionSummary();
+                    } else {
+                        this.addMessage('system', `Error: ${result.error}`, 'error');
+                    }
+                } catch (error) {
+                    this.addMessage('system', `Error processing audio: ${error.message}`, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            async sendText() {
+                const text = this.textInput.value.trim();
+                if (!text) return;
+
+                this.showLoading(true);
+                this.addMessage('user', text);
+                this.textInput.value = '';
+
+                try {
+                    const response = await fetch('/api/analyze-text', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            analysis_type: this.analysisType.value
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.addMessage('ai', result.ai_response);
+                        this.updateSessionSummary();
+                    } else {
+                        this.addMessage('system', `Error: ${result.error}`, 'error');
+                    }
+                } catch (error) {
+                    this.addMessage('system', `Error: ${error.message}`, 'error');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            addMessage(type, content, subtype = '') {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}-message`;
+                
+                let icon = '';
+                if (type === 'user') icon = '<i class="fas fa-user"></i>';
+                else if (type === 'ai') icon = '<i class="fas fa-robot"></i>';
+                else if (type === 'system') {
+                    if (subtype === 'error') icon = '<i class="fas fa-exclamation-triangle"></i>';
+                    else icon = '<i class="fas fa-info-circle"></i>';
+                }
+
+                messageDiv.innerHTML = `${icon} ${content}`;
+                this.chatContainer.appendChild(messageDiv);
+                this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+            }
+
+            showLoading(show) {
+                this.loadingSpinner.style.display = show ? 'block' : 'none';
+            }
+
+            async checkSystemStatus() {
+                try {
+                    const response = await fetch('/api/health');
+                    const result = await response.json();
+
+                    let statusHtml = '';
+                    if (result.success && result.healthy) {
+                        statusHtml = '<i class="fas fa-check-circle text-success"></i> All systems operational';
+                    } else {
+                        statusHtml = '<i class="fas fa-exclamation-triangle text-warning"></i> Some components unavailable';
+                        if (result.components) {
+                            statusHtml += '<br><small>';
+                            for (const [component, status] of Object.entries(result.components)) {
+                                const icon = status ? 'check text-success' : 'times text-danger';
+                                statusHtml += `<i class="fas fa-${icon}"></i> ${component}<br>`;
+                            }
+                            statusHtml += '</small>';
+                        }
+                    }
+
+                    this.systemStatus.innerHTML = statusHtml;
+                } catch (error) {
+                    this.systemStatus.innerHTML = '<i class="fas fa-times-circle text-danger"></i> System check failed';
+                }
+            }
+
+            async updateSessionSummary() {
+                try {
+                    const response = await fetch('/api/session-summary');
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.sessionSummary.innerHTML = `<pre style="font-size: 0.8rem; white-space: pre-wrap;">${result.summary}</pre>`;
+                    }
+                } catch (error) {
+                    console.error('Failed to update session summary:', error);
+                }
+            }
+
+            async clearSession() {
+                if (!confirm('Are you sure you want to clear the current session?')) return;
+
+                try {
+                    const response = await fetch('/api/clear-session', { method: 'POST' });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.chatContainer.innerHTML = `
+                            <div class="message system-message">
+                                <i class="fas fa-info-circle"></i>
+                                Session cleared. Ready for new interactions.
+                            </div>
+                        `;
+                        this.sessionSummary.innerHTML = '<p class="text-muted">No interactions yet</p>';
+                    }
+                } catch (error) {
+                    this.addMessage('system', `Error clearing session: ${error.message}`, 'error');
+                }
+            }
+
+            async loadSettings() {
+                try {
+                    const response = await fetch('/api/settings');
+                    const result = await response.json();
+
+                    if (result.success && result.settings) {
+                        this.outputStyle.value = result.settings.output_style || 'conversational';
+                    }
+                } catch (error) {
+                    console.error('Failed to load settings:', error);
+                }
+            }
+
+            async saveSettings() {
+                try {
+                    const settings = {
+                        output_style: this.outputStyle.value
+                    };
+
+                    const response = await fetch('/api/settings', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(settings)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.addMessage('system', 'Settings saved successfully');
+                    } else {
+                        this.addMessage('system', `Error saving settings: ${result.error}`, 'error');
+                    }
+                } catch (error) {
+                    this.addMessage('system', `Error saving settings: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new SpeechToTextApp();
+        });
+    </script>
+</body>
+</html>
